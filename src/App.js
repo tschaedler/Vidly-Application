@@ -1,25 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Movies from "./components/Movies";
+import MovieForm from "./components/MovieForm";
+import Customers from "./components/Customers";
+import Rentals from "./components/Rentals";
+import NotFound from "./components/NotFound";
+import LoginForm from "./components/LoginForm";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<div className="container">
+			<Navbar />
+			<Switch>
+				<Route path="/login" component={LoginForm} />
+				<Route path="/movies/:id" component={MovieForm} />
+				<Route path="/movies" component={Movies} />
+				<Route path="/customers" component={Customers} />
+				<Route path="/rentals" component={Rentals} />
+				<Route path="/not-found" component={NotFound} />
+				<Redirect exact from="/" to="/movies" />
+				<Redirect to="/not-found" />
+			</Switch>
+		</div>
+	);
 }
 
 export default App;
