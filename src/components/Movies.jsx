@@ -7,6 +7,8 @@ import _ from "lodash";
 import Pagination from "./common/Pagination";
 import { paginate } from "../utils/paginate";
 import MoviesTable from "./MoviesTable";
+import { Link } from "react-router-dom";
+import SearchBox from "./common/SearchBox";
 
 class Movies extends Component {
 	state = {
@@ -15,6 +17,8 @@ class Movies extends Component {
 		currentPage: 1,
 		pageSize: 4,
 		sortColumn: { path: "title", order: "asc" },
+		searchQuery: "",
+		selectedGenre: null,
 	};
 
 	componentDidMount() {
@@ -43,7 +47,11 @@ class Movies extends Component {
 	};
 
 	handleGenreSelect = (genre) => {
-		this.setState({ selectedGenre: genre, currentPage: 1 });
+		this.setState({
+			selectedGenre: genre,
+			searchQuery: "",
+			currentPage: 1,
+		});
 	};
 
 	handleSort = (sortColumn) => {
@@ -51,13 +59,25 @@ class Movies extends Component {
 	};
 
 	getPagedData = () => {
-		const { movies, currentPage, pageSize, selectedGenre, sortColumn } =
-			this.state;
+		const {
+			movies,
+			currentPage,
+			pageSize,
+			selectedGenre,
+			sortColumn,
+			searchQuery,
+		} = this.state;
 
-		const movieFiltered =
-			selectedGenre && selectedGenre._id
-				? movies.filter((m) => m.genre._id === selectedGenre._id)
-				: movies;
+		let movieFiltered = movies;
+		if (searchQuery) {
+			movieFiltered = movies.filter((m) =>
+				m.title.toLowercase().startsWith(searchQuery.toLowercase())
+			);
+		} else if (selectedGenre && selectedGenre._id) {
+			movieFiltered = movies.filter(
+				(m) => m.genre._id === selectedGenre._id
+			);
+		}
 
 		const movieSorted = _.orderBy(
 			movieFiltered,
@@ -69,21 +89,22 @@ class Movies extends Component {
 		return { totalCount: movieFiltered.length, data: movieSubset };
 	};
 
+	handleSearch = (query) => {
+		this.setState({
+			searchQuery: query,
+			selectedGenre: null,
+			currentPage: 1,
+		});
+	};
+
 	render() {
 		const { length: count } = this.state.movies;
-		const { currentPage, pageSize, sortColumn } = this.state;
+		const { currentPage, pageSize, sortColumn, searchQuery } = this.state;
 
 		const { totalCount, data: movieSubset } = this.getPagedData();
 
 		return (
 			<React.Fragment>
-				<div className="mt-3 mb-3">
-					{count === 0 ? (
-						<h3>There are no movies!</h3>
-					) : (
-						<h3>There are {totalCount} movies</h3>
-					)}
-				</div>
 				<div className="row">
 					<div className="col-3">
 						{
@@ -95,6 +116,20 @@ class Movies extends Component {
 						}
 					</div>
 					<div className="col">
+						<Link to="/movies/new" className="btn btn-primary me-2">
+							New Movie
+						</Link>
+						<div className="mt-3 mb-3">
+							{count === 0 ? (
+								<h3>There are no movies!</h3>
+							) : (
+								<h3>There are {totalCount} movies</h3>
+							)}
+						</div>
+						<SearchBox
+							value={searchQuery}
+							onChange={this.handleSearch}
+						/>
 						<div className="table-responsive rounded overflow-hidden shadow p-3 bg-dark">
 							<MoviesTable
 								movieSubset={movieSubset}

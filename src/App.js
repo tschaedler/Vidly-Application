@@ -7,12 +7,14 @@ import Customers from "./components/Customers";
 import Rentals from "./components/Rentals";
 import NotFound from "./components/NotFound";
 import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
 
 function App() {
 	return (
 		<div className="container">
 			<Navbar />
 			<Switch>
+				<Route path="/register" component={RegisterForm} />
 				<Route path="/login" component={LoginForm} />
 				<Route path="/movies/:id" component={MovieForm} />
 				<Route path="/movies" component={Movies} />
